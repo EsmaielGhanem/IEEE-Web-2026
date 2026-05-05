@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Rental DB Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --surface2: #eef1f8;
+    --border: #dde2ef;
+    --text: #1a2035;
+    --text-muted: #6b7594;
+    --blue: #2563eb;
+    --blue-light: #dbeafe;
+    --blue-mid: #3b82f6;
+    --green: #16a34a;
+    --green-light: #dcfce7;
+    --gray: #9ca3af;
+    --gray-light: #f3f4f6;
+    --accent: #0ea5e9;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(37,99,235,0.07);
+    --shadow-lg: 0 8px 32px rgba(37,99,235,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --transition: 0.2s ease;
+  }
+  [data-theme="dark"] {
+    --bg: #0f1117;
+    --surface: #1a1f2e;
+    --surface2: #232840;
+    --border: #2e3554;
+    --text: #e8ecf7;
+    --text-muted: #8892b0;
+    --blue-light: #1e3a5f;
+    --green-light: #14532d;
+    --gray-light: #1e2130;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.35);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    transition: background var(--transition), color var(--transition);
+  }
+  /* ── Top Bar ── */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 34px; height: 34px;
+    background: var(--blue);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 16px;
+  }
+  .logo-text { font-weight: 700; font-size: 15px; letter-spacing: -0.3px; }
+  .logo-sub { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .btn-icon {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    transition: all var(--transition);
+    color: var(--text);
+  }
+  .btn-icon:hover { background: var(--blue); color: white; border-color: var(--blue); }
+  .btn-reset {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all var(--transition);
+  }
+  .btn-reset:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
+  /* ── Layout ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(135deg, var(--blue) 0%, #1d4ed8 100%);
+    border-radius: var(--radius);
+    padding: 36px 40px;
+    color: white;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-content { position: relative; }
+  .hero h1 { font-size: clamp(20px, 4vw, 28px); font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .hero p { font-size: 14px; opacity: 0.85; font-weight: 300; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px; font-weight: 600;
+    margin-bottom: 14px;
+  }
+  /* ── Overall Progress ── */
+  .overall-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow);
+  }
+  .overall-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .overall-label { font-weight: 600; font-size: 14px; }
+  .overall-pct { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 600; color: var(--blue); }
+  .progress-bar-wrap { background: var(--surface2); border-radius: 99px; height: 10px; overflow: hidden; }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue) 0%, var(--accent) 100%);
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  /* ── Nav Tabs ── */
+  .nav-tabs {
+    display: flex; gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 6px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+  }
+  .nav-tab {
+    flex: 1; min-width: 100px;
+    padding: 8px 14px;
+    border: none; background: transparent;
+    border-radius: var(--radius-sm);
+    font-family: 'Sora', sans-serif;
+    font-size: 13px; font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+    text-align: center;
+  }
+  .nav-tab.active { background: var(--blue); color: white; box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+  .nav-tab:not(.active):hover { background: var(--surface2); color: var(--text); }
+  /* ── Section / Page ── */
+  .page { display: none; }
+  .page.active { display: block; }
+  /* ── Day Cards ── */
+  .day-section { margin-bottom: 24px; }
+  .day-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .day-title-wrap { display: flex; align-items: center; gap: 10px; }
+  .day-badge {
+    background: var(--blue);
+    color: white;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .day-badge.day2 { background: #7c3aed; }
+  .day-badge.day3 { background: #0891b2; }
+  .day-title { font-size: 16px; font-weight: 700; }
+  .day-pct { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--blue); font-weight: 600; }
+  .day-progress-bar { height: 4px; background: var(--surface2); border-radius: 99px; margin-bottom: 14px; overflow: hidden; }
+  .day-progress-fill { height: 100%; border-radius: 99px; transition: width 0.4s ease; }
+  .fill-blue { background: linear-gradient(90deg, var(--blue), var(--accent)); }
+  .fill-purple { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+  .fill-cyan { background: linear-gradient(90deg, #0891b2, #22d3ee); }
+  /* ── Task List ── */
+  .task-list { display: flex; flex-direction: column; gap: 8px; }
+  .task-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: var(--shadow);
+  }
+  .task-item:hover { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-light); }
+  .task-item.done { background: var(--green-light); border-color: #86efac; }
+  .task-cb {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    transition: all var(--transition);
+  }
+  .task-item.done .task-cb { background: var(--green); border-color: var(--green); color: white; }
+  .task-text { font-size: 14px; flex: 1; }
+  .task-item.done .task-text { color: var(--green); text-decoration: line-through; }
+  /* ── Requirements Page ── */
+  .req-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .req-header {
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .req-num {
+    width: 28px; height: 28px;
+    background: var(--blue);
+    color: white;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .req-title { font-weight: 700; font-size: 15px; }
+  .req-body { padding: 20px; font-size: 13.5px; line-height: 1.8; color: var(--text); white-space: pre-wrap; }
+  .req-body ul { padding-left: 20px; margin: 6px 0; }
+  .req-body li { margin: 4px 0; }
+  /* ── SQL Practice ── */
+  .sql-section { margin-bottom: 16px; }
+  .sql-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: var(--shadow);
+  }
+  .sql-header:hover { border-color: var(--blue); }
+  .sql-header-left { display: flex; align-items: center; gap: 12px; }
+  .sql-icon {
+    width: 32px; height: 32px;
+    background: var(--blue-light);
+    color: var(--blue);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 700;
+  }
+  .sql-name { font-weight: 700; font-size: 14px; }
+  .sql-meta { font-size: 12px; color: var(--text-muted); }
+  .sql-header-right { display: flex; align-items: center; gap: 10px; }
+  .sql-complete-btn {
+    padding: 5px 12px;
+    font-size: 11px; font-weight: 700;
+    font-family: 'Sora', sans-serif;
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    background: var(--blue-light);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+  }
+  .sql-complete-btn:hover { background: var(--blue); color: white; }
+  .sql-complete-btn.all-done { background: var(--green); border-color: var(--green); color: white; }
+  .chevron { font-size: 14px; color: var(--text-muted); transition: transform var(--transition); }
+  .sql-body {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+  .sql-body.open { display: block; }
+  .sql-header.open { border-radius: var(--radius-sm) var(--radius-sm) 0 0; border-color: var(--blue); }
+  .chevron.open { transform: rotate(180deg); }
+  .sql-q {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .sql-q:last-child { border-bottom: none; }
+  .sql-q:hover { color: var(--blue); }
+  .sql-q.done { color: var(--green); }
+  .sql-qcb {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    transition: all var(--transition);
+  }
+  .sql-q.done .sql-qcb { background: var(--green); border-color: var(--green); color: white; }
+  .sql-qnum { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); flex-shrink: 0; margin-top: 2px; }
+  .sql-qtext { font-size: 13px; line-height: 1.5; }
+  .sql-q.done .sql-qtext { text-decoration: line-through; color: var(--green); }
+  /* ── Mini progress in sql header ── */
+  .sql-mini-bar { width: 60px; height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .sql-mini-fill { height: 100%; background: var(--blue); border-radius: 99px; transition: width 0.3s ease; }
+  /* ── Footer ── */
+  .footer { text-align: center; padding-top: 40px; font-size: 12px; color: var(--text-muted); }
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .hero { padding: 24px 20px; }
+    .topbar { padding: 0 16px; }
+    .container { padding: 20px 12px 60px; }
+    .sql-complete-btn { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-icon">🚗</div>
+    <div>
+      <div class="logo-text">Car Rental DB</div>
+      <div class="logo-sub">Project Tracker</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-icon" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+    <button class="btn-reset" onclick="resetProgress()">↺ Reset</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">📅 3-Day Sprint</div>
+      <h1>Car Rental Database Project Tracker</h1>
+      <p>Stay on track and complete your SQL project step by step.</p>
+    </div>
+  </div>
+
+  <!-- Overall Progress -->
+  <div class="overall-card">
+    <div class="overall-top">
+      <div>
+        <div class="overall-label">Overall Project Completion</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">All tasks · all SQL topics</div>
+      </div>
+      <div class="overall-pct" id="overallPct">0%</div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="overallBar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Nav Tabs -->
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('tasks')">📋 Daily Tasks</button>
+    <button class="nav-tab" onclick="showPage('requirements')">📄 Requirements</button>
+    <button class="nav-tab" onclick="showPage('sql')">💻 SQL Practice</button>
+  </div>
+
+  <!-- PAGE: Daily Tasks -->
+  <div class="page active" id="page-tasks">
+
+    <!-- Day 1 -->
+    <div class="day-section">
+      <div class="day-header">
+        <div class="day-title-wrap">
+          <span class="day-badge">Day 1</span>
+          <span class="day-title">Database Setup</span>
+        </div>
+        <span class="day-pct" id="day1pct">0%</span>
+      </div>
+      <div class="day-progress-bar"><div class="day-progress-fill fill-blue" id="day1bar" style="width:0%"></div></div>
+      <div class="task-list" id="day1tasks">
+        <div class="task-item" onclick="toggleTask(this,'day1')" data-id="d1t1">
+          <div class="task-cb">✓</div>
+          <div class="task-text">Create Database</div>
+        </div>
+        <div class="task-item" onclick="toggleTask(this,'day1')" data-id="d1t2">
+          <div class="task-cb">✓</div>
+          <div class="task-text">Create Tables</div>
+        </div>
+        <div class="task-item" onclick="toggleTask(this,'day1')" data-id="d1t3">
+          <div class="task-cb">✓</div>
+          <div class="task-text">Define Primary Keys</div>
+        </div>
+        <div class="task-item" onclick="toggleTask(this,'day1')" data-id="d1t4">
+          <div class="task-cb">✓</div>
+          <div class="task-text">Define Foreign Keys</div>
+        </div>
+        <div class="task-item" onclick="toggleTask(this,'day1')" data-id="d1t5">
+          <div class="task-cb">✓</div>
+          <div class="task-text">Insert Sample Data</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Day 2 -->
+    <div class="day-section">
+      <div class="day-header">
+        <div class="day-title-wrap">
+          <span class="day-badge day2">Day 2</span>
+          <span class="day-title">SQL Queries — Part 1</span>
+        </div>
+        <span class="day-pct" id="day2pct">0%</span>
+      </div>
+      <div class="day-progress-bar"><div class="day-progress-fill fill-purple" id="day2bar" style="width:0%"></div></div>
+      <div class="task-list" id="day2tasks">
+        <div class="task-item" onclick="toggleTask(this,'day2')" data-id="d2t1">
+          <div class="task-cb">✓</div>
+          <div class="task-text">Solve first half of SQL questions</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Day 3 -->
+    <div class="day-section">
+      <div class="day-header">
+        <div class="day-title-wrap">
+          <span class="day-badge day3">Day 3</span>
+          <span class="day-title">SQL Queries — Part 2 + Finalize</span>
+        </div>
+        <span class="day-pct" id="day3pct">0%</span>
+      </div>
+      <div class="day-progress-bar"><div class="day-progress-fill fill-cyan" id="day3bar" style="width:0%"></div></div>
+      <div class="task-list" id="day3tasks">
+        <div class="task-item" onclick="toggleTask(this,'day3')" data-id="d3t1">
+          <div class="task-cb">✓</div>
+          <div class="task-text">Solve second half of SQL questions and finalize project</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PAGE: Requirements -->
+  <div class="page" id="page-requirements">
+
+    <div class="req-card">
+      <div class="req-header">
+        <div style="font-weight:700;font-size:15px;">📄 Car Rental — Database Requirements</div>
+      </div>
+      <div class="req-body" style="padding:20px;font-size:13.5px;font-style:italic;color:var(--text-muted);">Here are the database requirements for a Car Rental:</div>
+    </div>
+
+    <div class="req-card">
+      <div class="req-header">
+        <div class="req-num">1</div>
+        <div class="req-title">Customer Management</div>
+      </div>
+      <div class="req-body">Customer Management: The system should save customers personal information: Name, contact information, and a driver's license number.</div>
+    </div>
+
+    <div class="req-card">
+      <div class="req-header">
+        <div class="req-num">2</div>
+        <div class="req-title">Vehicles Information</div>
+      </div>
+      <div class="req-body">The system should maintain an up-to-date information of available vehicles, including information such as make, model, year, mileage, and rental rates, fuel type (Gaz, Electric,.etc.) , plate number, Vehicle Category (4x4, Sedan, ..etc.)
+
+Vehicle Fuel Types:
+  • Gasoline (Petrol)
+  • Diesel
+  • Electric
+  • Hybrid</div>
+    </div>
+
+    <div class="req-card">
+      <div class="req-header">
+        <div class="req-num">3</div>
+        <div class="req-title">Vehicle Booking</div>
+      </div>
+      <div class="req-body">When a customer rents a vehicle System should keep booking information: customer who rented this vehicle, rental start date, rental end date, pickup location, drop of location, Initial rental days, initial total due amount, initial vehicle check notes.</div>
+    </div>
+
+    <div class="req-card">
+      <div class="req-header">
+        <div class="req-num">4</div>
+        <div class="req-title">Rental Transaction</div>
+      </div>
+      <div class="req-body">Customer should pay for the rent and a transaction should be logged in the system to keep the following information: Payment Details, initial paid amount.
+
+ProgrammingAdvices.com
+© Copyright 2023
+Project 1 – Car Rental (Requirements)</div>
+    </div>
+
+    <div class="req-card">
+      <div class="req-header">
+        <div class="req-num">5</div>
+        <div class="req-title">Vehicle Return</div>
+      </div>
+      <div class="req-body">When customer returns a vehicle, the system should calculate and keep the Actual Return Date, calculate actual rental days, record the final vehicle check notes, specify if there are additional charges.
+
+Original Transaction should be updated and record all differences in reservation and calculate the actual final amount due, and calculate the remaining amount, if they customer need refund, we pay it back.
+
+Save the current Milage, and calculate the consumed Mileage by customer during the rent period.</div>
+    </div>
+
+  </div>
+
+  <!-- PAGE: SQL Practice -->
+  <div class="page" id="page-sql">
+
+    <div id="sqlSections"></div>
+
+  </div>
+
+  <div class="footer">Car Rental Database Project Tracker · Progress saved locally</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════
+const SQL_TOPICS = [
+  { id: 'functions', name: 'Functions', icon: 'FN', questions: [
+    'Write a function that returns the full name of a customer.',
+    'Create a function to calculate the rental duration in days given start and end dates.',
+    'Write a function that returns the total amount due for a booking.',
+    'Create a function to get the remaining balance after payment.',
+    'Write a function that returns the age of a vehicle given its year.',
+    'Create a function to convert mileage from km to miles.',
+    'Write a function that checks if a vehicle is available on a given date.',
+    'Create a function to calculate the late return penalty amount.',
+    'Write a function that returns a formatted rental summary string.',
+    'Create a function to determine vehicle category label based on ID.',
+  ]},
+  { id: 'views', name: 'Views', icon: 'VW', questions: [
+    'Create a view that shows all available vehicles with their details.',
+    'Create a view listing all active rentals with customer and vehicle info.',
+    'Write a view that displays completed rentals with total amounts.',
+    'Create a view showing vehicles grouped by fuel type.',
+    'Write a view that lists customers with their total rental count.',
+    'Create a view displaying overdue rentals (past return date).',
+    'Write a view showing revenue per vehicle.',
+    'Create a view listing bookings with pickup and drop-off locations.',
+    'Write a view that shows vehicle return details and consumed mileage.',
+    'Create a view that summarizes transactions with payment status.',
+  ]},
+  { id: 'stored_procedures', name: 'Stored Procedures', icon: 'SP', questions: [
+    'Write a stored procedure to add a new customer.',
+    'Create a stored procedure to register a new vehicle booking.',
+    'Write a stored procedure to process a rental payment transaction.',
+    'Create a stored procedure to handle vehicle return and final billing.',
+    'Write a stored procedure to update vehicle mileage after return.',
+    'Create a stored procedure to apply additional charges on return.',
+    'Write a stored procedure to process a customer refund.',
+    'Create a stored procedure to search available vehicles by category.',
+    'Write a stored procedure to generate a rental invoice.',
+    'Create a stored procedure to cancel a pending booking.',
+  ]},
+  { id: 'indexes', name: 'Indexes', icon: 'IDX', questions: [
+    'Create an index on the customer table for faster name searches.',
+    'Add an index on the vehicle plate number column.',
+    'Create a composite index on bookings for customer and vehicle.',
+    'Write a query to list all indexes in your database.',
+    'Create an index on rental start and end date columns.',
+    'Add an index on transaction payment date.',
+    'Explain when a full-table scan might be used despite an index.',
+    'Create a unique index on driver license number.',
+    'Drop an index and observe query performance difference.',
+    'Create an index on vehicle fuel type for category-based filtering.',
+  ]},
+  { id: 'triggers', name: 'Triggers', icon: 'TRG', questions: [
+    'Write a trigger that logs changes to vehicle mileage.',
+    'Create a trigger that prevents double-booking a vehicle.',
+    'Write a trigger to auto-calculate total due when a booking is inserted.',
+    'Create a trigger that sends an alert when a rental is overdue.',
+    'Write a trigger to update vehicle status on booking creation.',
+    'Create a trigger to record the return date when a vehicle is returned.',
+    'Write a trigger to validate that end date is after start date.',
+    'Create a trigger to auto-apply late fees on overdue returns.',
+    'Write a trigger to restore vehicle availability on booking cancellation.',
+    'Create a trigger that archives deleted customer records.',
+  ]},
+  { id: 'sql_queries', name: 'SQL Queries', icon: 'SQL', questions: [
+    'List all vehicles available for rent today.',
+    'Find all bookings made by a specific customer.',
+    'Retrieve vehicles with mileage above a given threshold.',
+    'List all transactions where payment is incomplete.',
+    'Find all vehicles returned after their scheduled date.',
+    'Retrieve the most recently added customer.',
+    'List bookings where pickup and drop-off locations differ.',
+    'Find vehicles that have never been rented.',
+    'List all rentals within a specific date range.',
+    'Retrieve all vehicles sorted by rental rate descending.',
+  ]},
+  { id: 'joins', name: 'Joins', icon: 'JN', questions: [
+    'Write an INNER JOIN to show each booking with customer name.',
+    'Use a LEFT JOIN to list all customers including those with no bookings.',
+    'Write a JOIN to show booking details with vehicle information.',
+    'Join the transactions table with bookings to show payment status.',
+    'Write a multi-table join: customer + booking + vehicle + transaction.',
+    'Use a RIGHT JOIN to find vehicles with no associated bookings.',
+    'Write a self-join to compare vehicles of the same category.',
+    'Join the vehicle return details with original booking records.',
+    'Write a JOIN to find the most rented vehicle.',
+    'Use a CROSS JOIN to generate all possible customer-vehicle combinations.',
+  ]},
+  { id: 'subqueries', name: 'Subqueries', icon: 'SQ', questions: [
+    'Find customers who have rented more than 3 times using a subquery.',
+    'Retrieve vehicles whose rental rate is above the average rate.',
+    'Use a subquery to find the latest booking for each customer.',
+    'Find vehicles that have been rented by more than 5 customers.',
+    'Write a correlated subquery to find each customer\'s last rental date.',
+    'Use a subquery to get bookings with amounts above the overall average.',
+    'Retrieve customers who have never rented an electric vehicle.',
+    'Write a subquery to find overdue rentals.',
+    'Use an EXISTS subquery to check for unpaid transactions.',
+    'Find vehicles rented in the same period as another specific booking.',
+  ]},
+  { id: 'aggregate', name: 'Aggregate Functions', icon: 'AGG', questions: [
+    'Count the total number of customers in the system.',
+    'Find the total revenue from all completed rental transactions.',
+    'Calculate the average rental duration across all bookings.',
+    'Find the maximum and minimum rental rate among all vehicles.',
+    'Count bookings grouped by vehicle category.',
+    'Sum total paid amounts grouped by customer.',
+    'Find the average mileage consumed per rental.',
+    'Count vehicles grouped by fuel type.',
+    'Calculate total additional charges collected.',
+    'Find the month with the highest number of bookings.',
+  ]},
+  { id: 'ranking', name: 'Ranking Functions', icon: 'RNK', questions: [
+    'Use ROW_NUMBER() to rank customers by number of rentals.',
+    'Apply RANK() to vehicles ordered by total revenue generated.',
+    'Use DENSE_RANK() to rank vehicles by rental rate per category.',
+    'Apply NTILE(4) to divide bookings into quartiles by amount.',
+    'Use LEAD() to find the next booking date for each customer.',
+    'Apply LAG() to compare a customer\'s current vs previous rental amount.',
+    'Use FIRST_VALUE() to find each customer\'s first rented vehicle.',
+    'Apply LAST_VALUE() to find the most recent rental per vehicle.',
+    'Use PERCENT_RANK() to score vehicles by popularity.',
+    'Apply CUME_DIST() on customer total spending.',
+  ]},
+  { id: 'null_functions', name: 'Null Functions', icon: 'NUL', questions: [
+    'Use ISNULL/COALESCE to replace null drop-off locations with "Not Specified".',
+    'Find all bookings where additional charges are NULL.',
+    'Use NULLIF to return NULL when initial and actual rental days are equal.',
+    'Write a query using COALESCE to show the first non-null contact info.',
+    'Find vehicles where fuel type is not recorded (NULL).',
+    'Use ISNULL to default null mileage values to 0.',
+    'Write a query to count NULL values in the final check notes column.',
+    'Use COALESCE in a JOIN to handle missing vehicle category data.',
+    'Replace NULL return dates with today\'s date using ISNULL.',
+    'Write a query to audit all columns that may contain NULL values.',
+  ]},
+];
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let state = loadState();
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem('carRentalTracker')) || {}; } catch { return {}; }
+}
+function saveState() {
+  localStorage.setItem('carRentalTracker', JSON.stringify(state));
+}
+
+// ══════════════════════════════════════════════
+//  THEME
+// ══════════════════════════════════════════════
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.querySelector('.btn-icon').textContent = isDark ? '🌙' : '☀️';
+}
+
+// ══════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+//  DAILY TASKS
+// ══════════════════════════════════════════════
+function toggleTask(el, day) {
+  const id = el.dataset.id;
+  const isDone = el.classList.contains('done');
+  if (isDone) { el.classList.remove('done'); delete state[id]; }
+  else { el.classList.add('done'); state[id] = true; }
+  saveState();
+  updateDayProgress(day);
+  updateOverall();
+}
+
+function updateDayProgress(day) {
+  const tasks = document.querySelectorAll(`#${day}tasks .task-item`);
+  const done = document.querySelectorAll(`#${day}tasks .task-item.done`).length;
+  const total = tasks.length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById(`${day}pct`).textContent = pct + '%';
+  document.getElementById(`${day}bar`).style.width = pct + '%';
+}
+
+function restoreTaskStates() {
+  document.querySelectorAll('.task-item').forEach(el => {
+    if (state[el.dataset.id]) el.classList.add('done');
+  });
+  ['day1','day2','day3'].forEach(d => updateDayProgress(d));
+}
+
+// ══════════════════════════════════════════════
+//  OVERALL PROGRESS
+// ══════════════════════════════════════════════
+function updateOverall() {
+  // count day tasks
+  const allTasks = document.querySelectorAll('.task-item');
+  const doneTasks = document.querySelectorAll('.task-item.done').length;
+  // count sql questions
+  const totalSQL = SQL_TOPICS.length * 10;
+  let doneSQL = 0;
+  SQL_TOPICS.forEach(t => {
+    t.questions.forEach((_, qi) => {
+      if (state[`sql_${t.id}_${qi}`]) doneSQL++;
+    });
+  });
+  const total = allTasks.length + totalSQL;
+  const done = doneTasks + doneSQL;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('overallPct').textContent = pct + '%';
+  document.getElementById('overallBar').style.width = pct + '%';
+}
+
+// ══════════════════════════════════════════════
+//  SQL SECTIONS
+// ══════════════════════════════════════════════
+function buildSQLSections() {
+  const container = document.getElementById('sqlSections');
+  SQL_TOPICS.forEach(topic => {
+    const doneCount = topic.questions.filter((_, qi) => state[`sql_${topic.id}_${qi}`]).length;
+    const pct = Math.round((doneCount / 10) * 100);
+
+    const section = document.createElement('div');
+    section.className = 'sql-section';
+    section.id = `sec_${topic.id}`;
+
+    const allDone = doneCount === 10;
+    section.innerHTML = `
+      <div class="sql-header" onclick="toggleSQL('${topic.id}', this)">
+        <div class="sql-header-left">
+          <div class="sql-icon">${topic.icon}</div>
+          <div>
+            <div class="sql-name">${topic.name}</div>
+            <div class="sql-meta">${doneCount}/10 completed</div>
+          </div>
+        </div>
+        <div class="sql-header-right">
+          <div class="sql-mini-bar"><div class="sql-mini-fill" style="width:${pct}%"></div></div>
+          <button class="sql-complete-btn ${allDone ? 'all-done' : ''}" onclick="markSectionComplete('${topic.id}', event)">
+            ${allDone ? '✓ Done' : 'Mark All Done'}
+          </button>
+          <span class="chevron">▾</span>
+        </div>
+      </div>
+      <div class="sql-body" id="body_${topic.id}">
+        ${topic.questions.map((q, qi) => {
+          const done = state[`sql_${topic.id}_${qi}`];
+          return `<div class="sql-q ${done ? 'done' : ''}" onclick="toggleSQLQ('${topic.id}', ${qi}, this)">
+            <div class="sql-qcb">✓</div>
+            <div class="sql-qnum">${String(qi+1).padStart(2,'0')}</div>
+            <div class="sql-qtext">${q}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    `;
+    container.appendChild(section);
+  });
+}
+
+function toggleSQL(id, header) {
+  const body = document.getElementById('body_' + id);
+  const chevron = header.querySelector('.chevron');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+}
+
+function toggleSQLQ(topicId, qi, el) {
+  const key = `sql_${topicId}_${qi}`;
+  const isDone = el.classList.contains('done');
+  if (isDone) { el.classList.remove('done'); delete state[key]; }
+  else { el.classList.add('done'); state[key] = true; }
+  saveState();
+  updateSQLSection(topicId);
+  updateOverall();
+}
+
+function markSectionComplete(topicId, e) {
+  e.stopPropagation();
+  const topic = SQL_TOPICS.find(t => t.id === topicId);
+  topic.questions.forEach((_, qi) => { state[`sql_${topicId}_${qi}`] = true; });
+  saveState();
+  // rebuild section questions
+  const body = document.getElementById('body_' + topicId);
+  body.querySelectorAll('.sql-q').forEach(q => q.classList.add('done'));
+  updateSQLSection(topicId);
+  updateOverall();
+}
+
+function updateSQLSection(topicId) {
+  const topic = SQL_TOPICS.find(t => t.id === topicId);
+  const doneCount = topic.questions.filter((_, qi) => state[`sql_${topicId}_${qi}`]).length;
+  const pct = Math.round((doneCount / 10) * 100);
+  const sec = document.getElementById('sec_' + topicId);
+  sec.querySelector('.sql-meta').textContent = `${doneCount}/10 completed`;
+  sec.querySelector('.sql-mini-fill').style.width = pct + '%';
+  const btn = sec.querySelector('.sql-complete-btn');
+  if (doneCount === 10) { btn.textContent = '✓ Done'; btn.classList.add('all-done'); }
+  else { btn.textContent = 'Mark All Done'; btn.classList.remove('all-done'); }
+}
+
+// ══════════════════════════════════════════════
+//  RESET
+// ══════════════════════════════════════════════
+function resetProgress() {
+  if (!confirm('Reset all progress? This cannot be undone.')) return;
+  state = {};
+  saveState();
+  document.querySelectorAll('.task-item').forEach(el => el.classList.remove('done'));
+  ['day1','day2','day3'].forEach(d => updateDayProgress(d));
+  // reset sql
+  document.querySelectorAll('.sql-q').forEach(q => q.classList.remove('done'));
+  SQL_TOPICS.forEach(t => updateSQLSection(t.id));
+  updateOverall();
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+buildSQLSections();
+restoreTaskStates();
+updateOverall();
+</script>
+</body>
+</html>
