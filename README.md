@@ -6,6 +6,10 @@ This repository contains the materials and sessions delivered as part of the Web
 
 ---
 
+## 📌 Tasks 
+1. [CarRental Task](https://esmaielghanem.github.io/IEEE-Web-2026/DataBase/Tasks/Car_rantal/)
+
+
 ## 🧠 Topics Covered
 
 ### 🔹 SQL Basics
