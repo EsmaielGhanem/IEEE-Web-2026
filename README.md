@@ -86,33 +86,6 @@ This repository contains the materials and sessions delivered as part of the Web
 
 ---
 
-## 🧠 Topics Covered
-
-### 🔹 C# Basics
-
-* Variables & Data Types
-* Operators
-* Conditional Statements
-* Loops
-
----
-
-### 🔹 Object-Oriented Programming
-
-* Classes & Objects
-* Encapsulation
-* Inheritance
-* Polymorphism
-* Abstraction
-
----
-
-### 🔹 Advanced C#
-
-* Properties
-* Constructors
-* Static Members
-* Exception Handling
 
 ---
 
