@@ -9,27 +9,25 @@ This repository contains the materials and sessions delivered as part of the Web
 ## 📌 Tasks 
 1. [CarRental Task](https://esmaielghanem.github.io/IEEE-Web-2026/DataBase/Tasks/Car_rantal/)
 
+---
 
 ## 🧠 Topics Covered
 
 ### 🔹 SQL Basics
 
 * **CRUD Operations**
-
   * SELECT
   * INSERT
   * UPDATE
   * DELETE
 
 * **Filtering**
-
   * WHERE
   * LIKE
   * IN
   * BETWEEN
 
 * **Sorting**
-
   * ORDER BY
 
 ---
@@ -80,7 +78,45 @@ This repository contains the materials and sessions delivered as part of the Web
 
 ---
 
+# C# Fundamentals – IEEE MSB
+
+## 📌 Sessions
+
+1. [Session 01](https://esmaielghanem.github.io/IEEE-Data/C%23/Session01/)
+
+---
+
+## 🧠 Topics Covered
+
+### 🔹 C# Basics
+
+* Variables & Data Types
+* Operators
+* Conditional Statements
+* Loops
+
+---
+
+### 🔹 Object-Oriented Programming
+
+* Classes & Objects
+* Encapsulation
+* Inheritance
+* Polymorphism
+* Abstraction
+
+---
+
+### 🔹 Advanced C#
+
+* Properties
+* Constructors
+* Static Members
+* Exception Handling
+
+---
+
 ## 👨‍🏫 Instructor
 
-Head of Web Track – IEEE MSB
+Head of Web Track – IEEE MSB  
 Delivered sessions on Database, C#, and OOP
