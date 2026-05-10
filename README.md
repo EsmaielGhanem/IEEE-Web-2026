@@ -83,6 +83,7 @@ This repository contains the materials and sessions delivered as part of the Web
 ## 📌 Sessions
 
 1. [Session 01](https://esmaielghanem.github.io/IEEE-Data/C%23/Session01/)
+2. [Session 02](https://esmaielghanem.github.io/IEEE-Data/C%23/Session02/)
 
 
 ---
